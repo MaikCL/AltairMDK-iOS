@@ -10,11 +10,31 @@ let package = Package(
     products: [
         .library(
             name: "Altair-MDK",
-            targets: ["AltairMDKCommon"]),
+            targets: [
+                "AltairMDKCommon",
+                "AltairMDKProviders"
+            ]),
     ],
     dependencies: [],
     targets: [
-        .target(name: "AltairMDKCommon", dependencies: [], path: "Sources/Common"),
-        .testTarget(name: "AltairMDKCommonTests", dependencies: ["AltairMDKCommon"], path: "Tests/CommonTests")
+        
+        .target(
+            name: "AltairMDKCommon",
+            dependencies: [],
+            path: "Sources/Common"),
+        
+        .target(
+            name: "AltairMDKProviders",
+            dependencies: [
+                "AltairMDKCommon"
+            ],
+            path: "Sources/Providers"),
+        
+        .testTarget(
+            name: "AltairMDKCommonTests",
+            dependencies: [
+                "AltairMDKCommon"
+            ],
+            path: "Tests/CommonTests")
     ]
 )
