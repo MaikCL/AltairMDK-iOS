@@ -11,11 +11,11 @@ extension Publishers {
         input: PassthroughSubject<Action, Never>,
         reduce: @escaping (State, Action) -> State,
         scheduler: Scheduler,
-        sideEffects: SideEffect<Action>
+        sideEffects: SideEffectsHandler<Action> = SideEffectsHandler()
     ) -> AnyPublisher<State, Never> {
 
         let state = CurrentValueSubject<State, Never>(initial)
-        let action = sideEffects.run(input.eraseToAnyPublisher())
+        let action = sideEffects.whenInput(action: input.eraseToAnyPublisher()).run(input.eraseToAnyPublisher())
         
         return Deferred {
             action
