@@ -5,7 +5,7 @@
 import Combine
 
 public struct SideEffect<Action> {
-    let run: (AnyPublisher<Action, Never>) -> AnyPublisher<Action, Never>
+    public let run: (AnyPublisher<Action, Never>) -> AnyPublisher<Action, Never>
 }
 
 extension SideEffect {

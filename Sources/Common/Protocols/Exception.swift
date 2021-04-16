@@ -6,5 +6,12 @@ import Foundation
 
 public protocol Exception: LocalizedError {
     var code: String { get }
+    var category: ExceptionCategory { get }
     var errorDescription: String? { get }
+}
+
+public enum ExceptionCategory {
+    case feature
+    case network
+    case mappers
 }

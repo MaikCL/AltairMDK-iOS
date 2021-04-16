@@ -18,7 +18,7 @@ public protocol EntityMapper {
     static var mapModelToEntity: (Model) throws -> Entity { get }
 }
 
-public enum MapperError: Error {
+public enum MapperException {
     /// There is not enough information to map the entity to model type
     case cantMapToModel
     
@@ -26,16 +26,19 @@ public enum MapperError: Error {
     case cantMapToEntity
 }
 
-extension MapperError {
+extension MapperException: Exception {
+    
+    public var category: ExceptionCategory {
+        .mappers
+    }
+    
     public var code: String {
         switch self {
-            case .cantMapToModel: return "mdk.mp.1"
-            case .cantMapToEntity: return "mdk.mp.2"
+            case .cantMapToModel: return "mdk.mp.01"
+            case .cantMapToEntity: return "mdk.mp.02"
         }
     }
-}
-
-extension MapperError: LocalizedError {
+    
     public var errorDescription: String? {
         switch self {
             case .cantMapToModel:
@@ -45,4 +48,3 @@ extension MapperError: LocalizedError {
         }
     }
 }
-

@@ -6,19 +6,20 @@ import Foundation
 import Combine
 
 extension Publishers {
+    
     public static func store<State, Action, Scheduler: Combine.Scheduler>(
         initial: State,
         input: PassthroughSubject<Action, Never>,
         reduce: @escaping (State, Action) -> State,
         scheduler: Scheduler,
-        sideEffects: SideEffectsHandler<Action> = SideEffectsHandler()
+        sideEffects: [SideEffect<Action>]
     ) -> AnyPublisher<State, Never> {
-
-        let state = CurrentValueSubject<State, Never>(initial)
-        let action = sideEffects.whenInput(action: input.eraseToAnyPublisher()).run(input.eraseToAnyPublisher())
         
+        let state = CurrentValueSubject<State, Never>(initial)
+        let actions = sideEffects.map { $0.run(input.eraseToAnyPublisher()) }
+
         return Deferred {
-            action
+            Publishers.MergeMany(actions)
                 .receive(on: scheduler)
                 .scan(initial, reduce)
                 .handleEvents(receiveOutput: state.send)
@@ -28,4 +29,5 @@ extension Publishers {
         }
         .eraseToAnyPublisher()
     }
+    
 }

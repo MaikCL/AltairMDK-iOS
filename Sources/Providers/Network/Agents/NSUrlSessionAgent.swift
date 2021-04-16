@@ -10,13 +10,13 @@ final class NSUrlSessionAgent: NetworkAgent {
     
     public init () { }
     
-    public func run<Endpoint>(_ endpoint: Endpoint) -> AnyPublisher<Endpoint.APIResponse, NetworkError> where Endpoint: EndpointProvider {
+    public func run<Endpoint>(_ endpoint: Endpoint) -> AnyPublisher<Endpoint.APIResponse, NetworkException> where Endpoint: EndpointProvider {
         guard let url = URL(string: endpoint.path) else {
-            return AnyPublisher(Fail<Endpoint.APIResponse, NetworkError>(error: .invalidURL))
+            return AnyPublisher(Fail<Endpoint.APIResponse, NetworkException>(error: .invalidURL))
         }
         
         guard Reachability.isNetworkReachable() else {
-            return AnyPublisher(Fail<Endpoint.APIResponse, NetworkError>(error: .unreachable))
+            return AnyPublisher(Fail<Endpoint.APIResponse, NetworkException>(error: .unreachable))
         }
 
         var request = URLRequest(url: url, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
@@ -25,7 +25,7 @@ final class NSUrlSessionAgent: NetworkAgent {
 
         if endpoint.parameters != nil {
             guard let postParams = try? JSONEncoder().encode(endpoint.parameters) else {
-                return AnyPublisher(Fail<Endpoint.APIResponse, NetworkError>(error: .invalidPostParams))
+                return AnyPublisher(Fail<Endpoint.APIResponse, NetworkException>(error: .invalidPostParams))
             }
             request.httpBody = postParams
         }
@@ -38,15 +38,15 @@ final class NSUrlSessionAgent: NetworkAgent {
                 let statusCode = HTTPStatusCode(rawCode: code)
                 guard statusCode.responseType == .success else {
                     if let apiError = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-                        throw NetworkError.apiError(statusCode, apiError)
+                        throw NetworkException.apiError(statusCode, apiError)
                     } else {
-                        throw NetworkError.invalidStatusCode(statusCode)
+                        throw NetworkException.invalidStatusCode(statusCode)
                     }
                 }
                 return data
             }
-            .decode(type: Endpoint.APIResponse.self, decoder: JSONDecoder())
-            .mapError { $0 as? NetworkError ?? .some($0) }
+            .decode(type: Endpoint.APIResponse.self, decoder: JSONDecoder(), errorTransform: { NetworkException.unableToDecode($0) })
+            .mapError { $0 as? NetworkException ?? .unknown($0) }
             .eraseToAnyPublisher()
     }
     
