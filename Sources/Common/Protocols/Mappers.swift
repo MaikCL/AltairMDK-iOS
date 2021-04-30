@@ -8,11 +8,25 @@ import Foundation
 public protocol ModelMapper {
     associatedtype Entity
     associatedtype Model
+    static var mapEntityToModel: (Entity) -> Model { get }
+}
+
+/// Map from Data or Presentation Model to Domain Entity
+public protocol EntityMapper {
+    associatedtype Model
+    associatedtype Entity
+    static var mapModelToEntity: (Model) -> Entity { get }
+}
+
+/// Map from Domain Entity to Data or Presentation Model
+public protocol ModelFailableMapper {
+    associatedtype Entity
+    associatedtype Model
     static var mapEntityToModel: (Entity) throws -> Model { get }
 }
 
-/// Map from Data or Presentation Model to Entity
-public protocol EntityMapper {
+/// Map from Data or Presentation Model to Domain Entity
+public protocol EntityFailableMapper {
     associatedtype Model
     associatedtype Entity
     static var mapModelToEntity: (Model) throws -> Entity { get }
