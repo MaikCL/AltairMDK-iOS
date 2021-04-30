@@ -8,5 +8,5 @@ public protocol Store: ObservableObject {
     associatedtype State
     associatedtype Action
     var state: State { get }
-    func trigger(action: Action)
+    func trigger(_ action: Action)
 }
