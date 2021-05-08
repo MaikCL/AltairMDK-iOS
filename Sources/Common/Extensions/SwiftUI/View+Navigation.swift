@@ -23,6 +23,24 @@ extension View {
         }
     }
 
+    /// ### Example of use
+    ///    struct ListingScene: View {
+    ///        @ObservedObject private(set) var viewModel: ListingViewModel
+    ///
+    ///        @State private var destination: Destination?
+    ///
+    ///        var body: some View {
+    ///            NavigationView {
+    ///                VStack {
+    ///                    Button("Nav") {
+    ///                        destination = .detail(id: "")
+    ///                    }.navigation(item: $destination, destination: viewModel.router.route(to:))
+    ///                }
+    ///            }
+    ///            .navigationViewStyle(StackNavigationViewStyle())
+    ///        }
+    ///    }
+    ///
     public func navigation<Item, Destination: View>(item: Binding<Item?>, @ViewBuilder destination: (Item) -> Destination) -> some View {
         let isActive = Binding(
             get: { item.wrappedValue != nil },
@@ -51,7 +69,7 @@ extension View {
 
 extension NavigationLink {
 
-    public init<T: Identifiable, D: View>(item: Binding<T?>, @ViewBuilder destination: (T) -> D, @ViewBuilder label: () -> Label) where Destination == D? {
+    public init<T: Identifiable, D: View>(item: Binding<T?>, @ViewBuilder destination: @escaping (T) -> D, @ViewBuilder label: () -> Label) where Destination == D? {
         let isActive = Binding(
             get: { item.wrappedValue != nil },
             set: { value in
