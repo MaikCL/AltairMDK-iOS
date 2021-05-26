@@ -13,5 +13,6 @@ public protocol Exception: LocalizedError {
 public enum ExceptionCategory {
     case feature
     case network
+    case storage
     case mappers
 }
