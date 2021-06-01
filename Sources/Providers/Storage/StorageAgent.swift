@@ -6,23 +6,27 @@
 //
 
 import Combine
+import Foundation
 import AltairMDKCommon
 
 public protocol StorageAgent: AnyObject {
-    associatedtype Storable
-    associatedtype Predicate
-    func insert(_ object: Storable) -> AnyPublisher<Void, StorageException>
-    func insertAll(_ objects: [Storable]) -> AnyPublisher<Void, StorageException>
-    func update(_ object: Storable) -> AnyPublisher<Void, StorageException>
-    func delete(_ object: Storable) -> AnyPublisher<Void, StorageException>
-    func deleteAll(_ model: Storable.Type, predicate: Predicate?) -> AnyPublisher<Void, StorageException>
-    func readAll(_ model: Storable.Type, predicate: Predicate?, sorted: Sorted?) -> AnyPublisher<[Storable], StorageException>
+    func insert(object: Storable) -> AnyPublisher<Void, StorageException>
+    func insertAll(objects: [Storable]) -> AnyPublisher<Void, StorageException>
+    func update(object: Storable) -> AnyPublisher<Void, StorageException>
+    func delete(object: Storable) -> AnyPublisher<Void, StorageException>
+    func deleteAll(_ model: Storable.Type, predicate: NSPredicate?) -> AnyPublisher<Void, StorageException>
+    func readAll<T: Storable>(_ model: T.Type, predicate: NSPredicate?, sorted: Sorted?) -> AnyPublisher<[T], StorageException>
 }
 
 public enum StorageException {
     case unknown(Error)
     case notInitialized
+    case readObjectFail
+    case insertObjectFail
+    case updateObjectFail
+    case deleteObjectFail
     case storePathNotFound
+    case objectNotSupported
     case dbModelFileNotFound
     case dbModelCreationFail
 }
@@ -37,9 +41,14 @@ extension StorageException: Exception {
         switch self {
             case .unknown: return "mdk.stg.01"
             case .notInitialized: return "mdk.stg.02"
-            case .storePathNotFound: return "mdk.stg.03"
-            case .dbModelFileNotFound: return "mdk.stg.04"
-            case .dbModelCreationFail: return "mdk.stg.05"
+            case .readObjectFail: return "mdk.stg.03"
+            case .insertObjectFail: return "mdk.stg.04"
+            case .updateObjectFail: return "mdk.stg.05"
+            case .deleteObjectFail: return "mdk.stg.06"
+            case .storePathNotFound: return "mdk.stg.07"
+            case .objectNotSupported: return "mdk.stg.08"
+            case .dbModelFileNotFound: return "mdk.stg.09"
+            case .dbModelCreationFail: return "mdk.stg.10"
         }
     }
     
@@ -48,9 +57,19 @@ extension StorageException: Exception {
             case .unknown(let error):
                 return "Unknown Storage Error: \(error.localizedDescription)"
             case .notInitialized:
-                return "DB not initialized"
+                return "DB not initialized for previus error"
+            case .readObjectFail:
+                return "Read object failed!"
+            case .insertObjectFail:
+                return "Insert object failed!"
+            case .updateObjectFail:
+                return "Update object failed!"
+            case .deleteObjectFail:
+                return "Delete object failed!"
             case .storePathNotFound:
                 return "Gettings document directory fail"
+            case .objectNotSupported:
+                return "Object downcast to the concrete storage type fail "
             case .dbModelFileNotFound:
                 return "DB File not found"
             case .dbModelCreationFail:
