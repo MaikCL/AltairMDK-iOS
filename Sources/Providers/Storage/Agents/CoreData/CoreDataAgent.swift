@@ -30,6 +30,18 @@ final class CoreDataAgent: StorageAgent {
         self.managedContext?.persistentStoreCoordinator = coordinator
     }
     
+    // TODO: Try to create the object using the context init: "let object = CoreDataModel(context: context)" - @mzapatae at 02/06/21
+    func create<T>(_ model: T.Type) -> T? where T: Storable {
+        guard
+            let context = managedContext,
+            let entityDescription = NSEntityDescription.entity(forEntityName: .init(describing: model.self), in: context)
+        else {
+            print("Failed to create CoreData entity description \(String(describing: model.self))")
+            return nil
+        }
+        return NSManagedObject(entity: entityDescription, insertInto: context) as? T
+    }
+    
     func insert(object: Storable) -> AnyPublisher<Void, StorageException> {
         guard let managedObject = object as? NSManagedObject else { return Fail(error: .objectNotSupported).eraseToAnyPublisher() }
         guard let context = managedContext else { return Fail(error: .notInitialized).eraseToAnyPublisher() }
@@ -106,6 +118,21 @@ final class CoreDataAgent: StorageAgent {
     
     func readAll<T>(_ model: T.Type, predicate: NSPredicate?, sorted: Sorted?) -> AnyPublisher<[T], StorageException> where T: Storable {
         guard let type = model as? NSManagedObject.Type else { return Fail(error: .objectNotSupported).eraseToAnyPublisher() }
+        guard let context = managedContext else { return Fail(error: .notInitialized).eraseToAnyPublisher() }
+        do {
+            let fetchRequest = type.fetchRequest() as NSFetchRequest<NSFetchRequestResult>
+            fetchRequest.predicate = predicate
+            
+            let results = try context.fetch(fetchRequest) as? [T] ?? []
+            return Just(results).setFailureType(to: StorageException.self).eraseToAnyPublisher()
+        } catch {
+            print("Read all objects error: \(error)")
+            return Fail(outputType: [T].self, failure: .readObjectFail).eraseToAnyPublisher()
+        }
+    }
+    
+    func read2All<T>(predicate: NSPredicate?, sorted: Sorted?) -> AnyPublisher<[T], StorageException> where T: Storable {
+        guard let type = T.self as? NSManagedObject.Type else { return Fail(error: .objectNotSupported).eraseToAnyPublisher() }
         guard let context = managedContext else { return Fail(error: .notInitialized).eraseToAnyPublisher() }
         do {
             let fetchRequest = type.fetchRequest() as NSFetchRequest<NSFetchRequestResult>

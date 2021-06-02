@@ -10,12 +10,14 @@ import Foundation
 import AltairMDKCommon
 
 public protocol StorageAgent: AnyObject {
+    func create<T: Storable>(_ model: T.Type) -> T?
     func insert(object: Storable) -> AnyPublisher<Void, StorageException>
     func insertAll(objects: [Storable]) -> AnyPublisher<Void, StorageException>
     func update(object: Storable) -> AnyPublisher<Void, StorageException>
     func delete(object: Storable) -> AnyPublisher<Void, StorageException>
     func deleteAll(_ model: Storable.Type, predicate: NSPredicate?) -> AnyPublisher<Void, StorageException>
     func readAll<T: Storable>(_ model: T.Type, predicate: NSPredicate?, sorted: Sorted?) -> AnyPublisher<[T], StorageException>
+    func read2All<T: Storable>(predicate: NSPredicate?, sorted: Sorted?) -> AnyPublisher<[T], StorageException>
 }
 
 public enum StorageException {
@@ -69,12 +71,11 @@ extension StorageException: Exception {
             case .storePathNotFound:
                 return "Gettings document directory fail"
             case .objectNotSupported:
-                return "Object downcast to the concrete storage type fail "
+                return "Object type for the concrete storage is not supported"
             case .dbModelFileNotFound:
                 return "DB File not found"
             case .dbModelCreationFail:
                 return "Object model creation fail"
-
         }
     }
     

@@ -10,6 +10,11 @@ import Foundation
 
 final class NoneStorageAgent: StorageAgent {
     
+    func create<T>(_ model: T.Type) -> T? where T: Storable {
+        print("Object is supposed to be created but nothing has happened")
+        return T.init()
+    }
+
     func insert(object: Storable) -> AnyPublisher<Void, StorageException> {
         print("Object is supposed to be inserted but nothing has happened")
         return Just(()).setFailureType(to: StorageException.self).eraseToAnyPublisher()
@@ -39,4 +44,10 @@ final class NoneStorageAgent: StorageAgent {
         print("Objects is supposed to be readed but nothing has happened")
         return Just([]).setFailureType(to: StorageException.self).eraseToAnyPublisher()
     }
+    
+    func read2All<T>(predicate: NSPredicate?, sorted: Sorted?) -> AnyPublisher<[T], StorageException> where T : Storable {
+        print("Objects is supposed to be readed but nothing has happened")
+        return Just([]).setFailureType(to: StorageException.self).eraseToAnyPublisher()
+    }
+    
 }
