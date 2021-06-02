@@ -26,6 +26,7 @@ final class CoreDataAgent: StorageAgent {
     private func initDB(modelName: String, storeType: StoreType) throws {
         let coordinator = try CoreDataStoreCoordinator.persistentStoreCoordinator(modelName: modelName, storeType: storeType)
         self.managedContext = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
+        self.managedContext?.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
         self.managedContext?.persistentStoreCoordinator = coordinator
     }
     
