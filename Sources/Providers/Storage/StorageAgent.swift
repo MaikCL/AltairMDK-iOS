@@ -16,7 +16,8 @@ public protocol StorageAgent: AnyObject {
     func update(object: Storable) -> AnyPublisher<Void, StorageException>
     func delete(object: Storable) -> AnyPublisher<Void, StorageException>
     func deleteAll(_ model: Storable.Type, predicate: NSPredicate?) -> AnyPublisher<Void, StorageException>
-    func readAll<T: Storable>(predicate: NSPredicate?, sorted: Sorted?) -> AnyPublisher<[T], StorageException>
+    func readAll<T: Storable>(_ model: T.Type, predicate: NSPredicate?, sorted: Sorted?) -> AnyPublisher<[T], StorageException>
+    func read2All<T: Storable>(predicate: NSPredicate?, sorted: Sorted?) -> AnyPublisher<[T], StorageException>
 }
 
 public enum StorageException {

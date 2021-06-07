@@ -40,7 +40,12 @@ final class NoneStorageAgent: StorageAgent {
         return Just(()).setFailureType(to: StorageException.self).eraseToAnyPublisher()
     }
     
-    func readAll<T>(predicate: NSPredicate?, sorted: Sorted?) -> AnyPublisher<[T], StorageException> where T: Storable {
+    func readAll<T>(_ model: T.Type, predicate: NSPredicate?, sorted: Sorted?) -> AnyPublisher<[T], StorageException> where T: Storable {
+        print("Objects is supposed to be readed but nothing has happened")
+        return Just([]).setFailureType(to: StorageException.self).eraseToAnyPublisher()
+    }
+    
+    func read2All<T>(predicate: NSPredicate?, sorted: Sorted?) -> AnyPublisher<[T], StorageException> where T : Storable {
         print("Objects is supposed to be readed but nothing has happened")
         return Just([]).setFailureType(to: StorageException.self).eraseToAnyPublisher()
     }
