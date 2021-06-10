@@ -9,14 +9,13 @@ extension Publishers {
     
     public static func store<State, Action, Scheduler: Combine.Scheduler>(
         initial: State,
-        input: PassthroughSubject<Action, Never>,
         reduce: @escaping (State, Action) -> State,
         scheduler: Scheduler,
-        sideEffects: [SideEffect<Action>]
+        sideEffects: [SideEffect<State, Action>]
     ) -> AnyPublisher<State, Never> {
         
         let state = CurrentValueSubject<State, Never>(initial)
-        let actions = sideEffects.map { $0.run(input.eraseToAnyPublisher()) }
+        let actions = sideEffects.map { $0.run(state.eraseToAnyPublisher()) }
 
         return Deferred {
             Publishers.MergeMany(actions)

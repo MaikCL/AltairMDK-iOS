@@ -11,7 +11,7 @@ public protocol StorageProviderProtocol {
 
 public enum StorageStrategy {
     case noneStorage
-    case coreData
+    case coreData(name: String)
 }
 
 public final class StorageProvider: StorageProviderProtocol {
@@ -22,8 +22,8 @@ public final class StorageProvider: StorageProviderProtocol {
             switch strategy {
                 case .noneStorage:
                     agent = NoneStorageAgent()
-                case .coreData:
-                    agent = try CoreDataAgent(configuration: .basic(identifier: "agregar la wea"))
+                case .coreData(let name):
+                    agent = try CoreDataAgent(configuration: .basic(identifier: name))
             }
         } catch {
             print("StorageAgent-\(String(reflecting: strategy)) initialization failed!")

@@ -4,14 +4,14 @@
 
 import Combine
 
-public struct SideEffect<Action> {
-    public let run: (AnyPublisher<Action, Never>) -> AnyPublisher<Action, Never>
+public struct SideEffect<State, Action> {
+    public let run: (AnyPublisher<State, Never>) -> AnyPublisher<Action, Never>
 }
 
 extension SideEffect {
-    public init<Effect: Publisher>(effects: @escaping (Action) -> Effect) where Effect.Output == Action, Effect.Failure == Never {
-        self.run = { action -> AnyPublisher<Action, Never> in
-            action.map { effects($0) }.switchToLatest().eraseToAnyPublisher()
+    public init<Effect: Publisher>(effects: @escaping (State) -> Effect) where Effect.Output == Action, Effect.Failure == Never {
+        self.run = { state -> AnyPublisher<Action, Never> in
+            state.map { effects($0) }.switchToLatest().eraseToAnyPublisher()
         }
     }
 }

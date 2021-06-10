@@ -17,7 +17,7 @@ extension Publisher where Self.Failure == Never {
     ///            .assignNoRetain(to: \.exception, on: self)
     ///            .store(in: &bag)
     ///
-    func assignNoRetain<Root>(to keyPath: ReferenceWritableKeyPath< Root,
+    public func assignNoRetain<Root>(to keyPath: ReferenceWritableKeyPath< Root,
         Self.Output >, on object: Root) -> AnyCancellable where Root: AnyObject {
         sink { [weak object] (value) in
             object?[keyPath: keyPath] = value
