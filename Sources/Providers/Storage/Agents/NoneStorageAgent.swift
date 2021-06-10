@@ -12,7 +12,7 @@ final class NoneStorageAgent: StorageAgent {
     
     func create<T>(_ model: T.Type) -> T? where T: Storable {
         print("Object is supposed to be created but nothing has happened")
-        return T.init()
+        return nil
     }
 
     func insert(object: Storable) -> AnyPublisher<Void, StorageException> {
