@@ -16,15 +16,15 @@ final class CoreDataAgent: StorageAgent {
 
     required init(configuration: ConfigurationType) throws {
         switch configuration {
-            case .basic:
-                try initDB(modelName: configuration.identifier(), storeType: .sqLiteStoreType)
-            case .inMemory:
-                try initDB(modelName: configuration.identifier(), storeType: .inMemoryStoreType)
+            case .basic(dbFile: let dbFile):
+                try initDB(urlModel: dbFile, storeType: .sqLiteStoreType)
+            case .inMemory(identifier: _):
+                try initDB(urlModel: .none, storeType: .inMemoryStoreType)
         }
     }
     
-    private func initDB(modelName: String, storeType: StoreType) throws {
-        let coordinator = try CoreDataStoreCoordinator.persistentStoreCoordinator(modelName: modelName, storeType: storeType)
+    private func initDB(urlModel: URL?, storeType: StoreType) throws {
+        let coordinator = try CoreDataStoreCoordinator.persistentStoreCoordinator(urlModel: urlModel, storeType: storeType)
         self.managedContext = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
         self.managedContext?.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
         self.managedContext?.persistentStoreCoordinator = coordinator
@@ -34,7 +34,7 @@ final class CoreDataAgent: StorageAgent {
     func create<T>(_ model: T.Type) -> T? where T: Storable {
         guard
             let context = managedContext,
-            let entityDescription = NSEntityDescription.entity(forEntityName: .init(describing: model.self), in: context)
+            let entityDescription = NSEntityDescription.entity(forEntityName: model.entityName, in: context)
         else {
             print("Failed to create CoreData entity description \(String(describing: model.self))")
             return nil

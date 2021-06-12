@@ -14,27 +14,27 @@ enum StoreType: String {
 
 class CoreDataStoreCoordinator {
     
-    static func persistentStoreCoordinator(modelName: String, storeType: StoreType) throws -> NSPersistentStoreCoordinator {
-        return try NSPersistentStoreCoordinator.coordinator(modelName: modelName, storeType: storeType)
+    static func persistentStoreCoordinator(urlModel: URL?, storeType: StoreType) throws -> NSPersistentStoreCoordinator {
+        return try NSPersistentStoreCoordinator.coordinator(urlModel: urlModel, storeType: storeType)
     }
     
 }
 
 private extension NSPersistentStoreCoordinator {
     
-    static func coordinator(modelName: String, storeType: StoreType) throws -> NSPersistentStoreCoordinator {
-        guard let modelURL = Bundle.main.url(forResource: modelName, withExtension: "momd") else {
+    static func coordinator(urlModel: URL?, storeType: StoreType) throws -> NSPersistentStoreCoordinator {
+        guard let dbModel = urlModel else {
             throw StorageException.dbModelFileNotFound
         }
         
-        guard let managedObjectModel = NSManagedObjectModel(contentsOf: modelURL) else {
+        guard let managedObjectModel = NSManagedObjectModel(contentsOf: dbModel) else {
             throw StorageException.dbModelCreationFail
         }
         
         let persistentContainer = NSPersistentStoreCoordinator(managedObjectModel: managedObjectModel)
         switch storeType {
             case .sqLiteStoreType:
-                try persistentContainer.configureSQLiteStore(name: modelName)
+                try persistentContainer.configureSQLiteStore(name: dbModel.deletingPathExtension().lastPathComponent)
             case .inMemoryStoreType:
                 try persistentContainer.configureInMemoryStore()
         }

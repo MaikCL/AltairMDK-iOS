@@ -5,13 +5,15 @@
 //  Created by Miguel Angel on 25-05-21.
 //
 
+import Foundation
+
 public protocol StorageProviderProtocol {
     var agent: StorageAgent { get }
 }
 
 public enum StorageStrategy {
     case noneStorage
-    case coreData(name: String)
+    case coreData(dbFile: URL?)
 }
 
 public final class StorageProvider: StorageProviderProtocol {
@@ -22,8 +24,8 @@ public final class StorageProvider: StorageProviderProtocol {
             switch strategy {
                 case .noneStorage:
                     agent = NoneStorageAgent()
-                case .coreData(let name):
-                    agent = try CoreDataAgent(configuration: .basic(identifier: name))
+                case .coreData(let url):
+                    agent = try CoreDataAgent(configuration: .basic(dbFile: url))
             }
         } catch {
             print("StorageAgent-\(String(reflecting: strategy)) initialization failed!")

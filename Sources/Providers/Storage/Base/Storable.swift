@@ -8,5 +8,5 @@
 import Foundation
 
 public protocol Storable {
-    init()
+    static var entityName: String { get }
 }
