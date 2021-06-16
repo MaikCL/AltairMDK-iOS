@@ -12,7 +12,6 @@ public protocol StorageProviderProtocol {
 }
 
 public enum StorageStrategy {
-    case noneStorage
     case coreData(dbFile: URL?)
 }
 
@@ -20,18 +19,9 @@ public final class StorageProvider: StorageProviderProtocol {
     public let agent: StorageAgent
 
     public init(strategy: StorageStrategy) {
-        do {
-            switch strategy {
-                case .noneStorage:
-                    agent = NoneStorageAgent()
-                case .coreData(let url):
-                    agent = try CoreDataAgent(configuration: .basic(dbFile: url))
-            }
-        } catch {
-            print("StorageAgent-\(String(reflecting: strategy)) initialization failed!")
-            print("StorageAgent Error: \(error)")
-            print("Initialization fallback NoneStorageAgent")
-            agent = NoneStorageAgent()
+        switch strategy {
+            case .coreData(let url):
+                agent = CoreDataAgent(configuration: .basic(dbFile: url))
         }
     }
 
