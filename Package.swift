@@ -10,7 +10,6 @@ let package = Package(
     products: [
         .library(
             name: "Altair-MDK",
-            type: .dynamic,
             targets: [
                 "AltairMDKCommon",
                 "AltairMDKProviders"
