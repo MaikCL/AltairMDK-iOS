@@ -54,6 +54,10 @@ extension StorageException: Exception {
         }
     }
     
+    public var errorTitle: String? {
+        return "An exception occurred"
+    }
+    
     public var errorDescription: String? {
         switch self {
             case .unknown(let error):

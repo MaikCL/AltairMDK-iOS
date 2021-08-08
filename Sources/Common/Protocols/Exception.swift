@@ -7,6 +7,7 @@ import Foundation
 public protocol Exception: LocalizedError {
     var code: String { get }
     var category: ExceptionCategory { get }
+    var errorTitle: String? { get }
     var errorDescription: String? { get }
 }
 
