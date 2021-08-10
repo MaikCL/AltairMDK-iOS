@@ -27,8 +27,8 @@ extension UITapGestureRecognizer {
         let textBoundingBox = layoutManager.usedRect(for: textContainer)
 
         let textContainerOffset = CGPoint(
-            x: (labelSize.width - textBoundingBox.size.width) * 0.8 - textBoundingBox.origin.x,
-            y: (labelSize.height - textBoundingBox.size.height) * 0.8 - textBoundingBox.origin.y
+            x: (labelSize.width - textBoundingBox.size.width) * 0.3 - textBoundingBox.origin.x,
+            y: (labelSize.height - textBoundingBox.size.height) * 0.3 - textBoundingBox.origin.y
         )
 
         let locationOfTouchInTextContainer = CGPoint(x: locationOfTouchInLabel.x - textContainerOffset.x, y: locationOfTouchInLabel.y - textContainerOffset.y)

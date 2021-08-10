@@ -137,12 +137,11 @@ final class CoreDataAgent: StorageAgent {
     }
     
     func readAll<T>(_ model: T.Type, predicate: NSPredicate?) -> AnyPublisher<[T], StorageException> where T: Storable {
-        guard let type = model as? NSManagedObject.Type else { return Fail(error: .objectNotSupported).eraseToAnyPublisher() }
+        guard (model as? NSManagedObject.Type) != nil else { return Fail(error: .objectNotSupported).eraseToAnyPublisher() }
         guard let context = managedContext else { return Fail(error: .notInitialized).eraseToAnyPublisher() }
         do {
-            let fetchRequest = type.fetchRequest() as NSFetchRequest<NSFetchRequestResult>
+            let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: model.entityName)
             fetchRequest.predicate = predicate
-            
             let results = try context.fetch(fetchRequest) as? [T] ?? []
             return Just(results).setFailureType(to: StorageException.self).eraseToAnyPublisher()
         } catch {
