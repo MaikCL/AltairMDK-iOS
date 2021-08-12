@@ -11,7 +11,6 @@ import Foundation
 
 // TODO: Add Logger for track the exceptions and replace print - @mzapatae at 01/06/21
 final class CoreDataAgent: StorageAgent {
-
     var managedContext: NSManagedObjectContext?
 
     required init(configuration: ConfigurationType) {
@@ -30,7 +29,7 @@ final class CoreDataAgent: StorageAgent {
     
     private func initDB(urlModel: URL?, storeType: StoreType) throws {
         let coordinator = try CoreDataStoreCoordinator.persistentStoreCoordinator(urlModel: urlModel, storeType: storeType)
-        self.managedContext = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
+        self.managedContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
         self.managedContext?.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
         self.managedContext?.persistentStoreCoordinator = coordinator
     }
@@ -47,65 +46,98 @@ final class CoreDataAgent: StorageAgent {
         return NSManagedObject(entity: entityDescription, insertInto: context) as? T
     }
     
-    func insert(object: Storable) -> AnyPublisher<Void, StorageException> {
-        guard let managedObject = object as? NSManagedObject else { return Fail(error: .objectNotSupported).eraseToAnyPublisher() }
-        guard let context = managedContext else { return Fail(error: .notInitialized).eraseToAnyPublisher() }
+    func insert(object: Storable) -> AnyPublisher<Void, Error> {
+        guard let managedObject = object as? NSManagedObject else { return Fail(error: StorageException.objectNotSupported).eraseToAnyPublisher() }
+        guard let context = managedContext else { return Fail(error: StorageException.notInitialized).eraseToAnyPublisher() }
         do {
             context.insert(managedObject)
             try context.save()
-            return Just(()).setFailureType(to: StorageException.self).eraseToAnyPublisher()
+            return Result.Publisher(()).eraseToAnyPublisher()
         } catch {
             print("Insert object error: \(error)")
-            return Fail(error: .insertObjectFail).eraseToAnyPublisher()
+            return Fail(error: StorageException.insertObjectFail).eraseToAnyPublisher()
         }
     }
     
-    func insertAll(objects: [Storable]) -> AnyPublisher<Void, StorageException> {
-        guard let managedObjects = objects as? [NSManagedObject] else { return Fail(error: .objectNotSupported).eraseToAnyPublisher() }
-        guard let context = managedContext else { return Fail(error: .notInitialized).eraseToAnyPublisher() }
+    func insertAll(objects: [Storable]) -> AnyPublisher<Void, Error> {
+        guard let managedObjects = objects as? [NSManagedObject] else { return Fail(error: StorageException.objectNotSupported).eraseToAnyPublisher() }
+        guard let context = managedContext else { return Fail(error: StorageException.notInitialized).eraseToAnyPublisher() }
         do {
             managedObjects.forEach { context.insert($0) }
             try context.save()
-            return Just(()).setFailureType(to: StorageException.self).eraseToAnyPublisher()
+            return Result.Publisher(()).eraseToAnyPublisher()
         } catch {
             print("Insert all objects error: \(error)")
-            return Fail(error: .insertObjectFail).eraseToAnyPublisher()
+            return Fail(error: StorageException.insertObjectFail).eraseToAnyPublisher()
         }
     }
     
-    func update(object: Storable) -> AnyPublisher<Void, StorageException> {
-        guard let managedObject = object as? NSManagedObject else { return Fail(error: .objectNotSupported).eraseToAnyPublisher() }
-        guard let context = managedContext else { return Fail(error: .notInitialized).eraseToAnyPublisher() }
+    func insertAll(objects: [Storable]) -> Future<Void, Error> {
+        return Future() { promise in
+            guard let managedObjects = objects as? [NSManagedObject] else {
+                return promise(.failure(StorageException.objectNotSupported))
+            }
+            guard let context = self.managedContext else {
+                return promise(.failure(StorageException.notInitialized))
+            }
+            do {
+                managedObjects.forEach { context.insert($0) }
+                try context.save()
+                promise(.success(()))
+            } catch {
+                print("Insert all objects error: \(error)")
+                promise(.failure(StorageException.insertObjectFail))
+            }
+        }
+    }
+    
+//    func insertAll(objects: [Storable]) {
+//        guard let managedObjects = objects as? [NSManagedObject] else { return }
+//        guard let context = managedContext else { return }
+//        context.perform {
+//            do {
+//                managedObjects.forEach { context.insert($0) }
+//                try context.save()
+//            } catch {
+//                let error = error
+//                print("Insert all objects error: \(error)")
+//            }
+//        }
+//    }
+    
+    func update(object: Storable) -> AnyPublisher<Void, Error> {
+        guard let managedObject = object as? NSManagedObject else { return Fail(error: StorageException.objectNotSupported).eraseToAnyPublisher() }
+        guard let context = managedContext else { return Fail(error: StorageException.notInitialized).eraseToAnyPublisher() }
         do {
             if managedObject.isUpdated {
                 try context.save()
-                return Just(()).setFailureType(to: StorageException.self).eraseToAnyPublisher()
+                return Result.Publisher(()).eraseToAnyPublisher()
             } else {
                 print("Not exist and update for the object")
-                return Fail(error: .updateObjectFail).eraseToAnyPublisher()
+                return Fail(error: StorageException.updateObjectFail).eraseToAnyPublisher()
             }
         } catch {
             print("Update object error: \(error)")
-            return Fail(error: .updateObjectFail).eraseToAnyPublisher()
+            return Fail(error: StorageException.updateObjectFail).eraseToAnyPublisher()
         }
     }
     
-    func delete(object: Storable) -> AnyPublisher<Void, StorageException> {
-        guard let managedObject = object as? NSManagedObject else { return Fail(error: .objectNotSupported).eraseToAnyPublisher() }
-        guard let context = managedContext else { return Fail(error: .notInitialized).eraseToAnyPublisher() }
+    func delete(object: Storable) -> AnyPublisher<Void, Error> {
+        guard let managedObject = object as? NSManagedObject else { return Fail(error: StorageException.objectNotSupported).eraseToAnyPublisher() }
+        guard let context = managedContext else { return Fail(error: StorageException.notInitialized).eraseToAnyPublisher() }
         do {
             context.delete(managedObject)
             try context.save()
-            return Just(()).setFailureType(to: StorageException.self).eraseToAnyPublisher()
+            return Result.Publisher(()).eraseToAnyPublisher()
         } catch {
             print("Delete object error: \(error)")
-            return Fail(error: .deleteObjectFail).eraseToAnyPublisher()
+            return Fail(error: StorageException.deleteObjectFail).eraseToAnyPublisher()
         }
     }
     
-    func deleteAll(_ model: Storable.Type, predicate: NSPredicate?) -> AnyPublisher<Void, StorageException> {
-        guard let type = model as? NSManagedObject.Type else { return Fail(error: .objectNotSupported).eraseToAnyPublisher() }
-        guard let context = managedContext else { return Fail(error: .notInitialized).eraseToAnyPublisher() }
+    func deleteAll(_ model: Storable.Type, predicate: NSPredicate?) -> AnyPublisher<Void, Error> {
+        guard let type = model as? NSManagedObject.Type else { return Fail(error: StorageException.objectNotSupported).eraseToAnyPublisher() }
+        guard let context = managedContext else { return Fail(error: StorageException.notInitialized).eraseToAnyPublisher() }
         do {
             let fetchRequest = type.fetchRequest() as NSFetchRequest<NSFetchRequestResult>
             fetchRequest.returnsObjectsAsFaults = false
@@ -114,39 +146,39 @@ final class CoreDataAgent: StorageAgent {
             let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
             try context.execute(deleteRequest)
             try context.save()
-            return Just(()).setFailureType(to: StorageException.self).eraseToAnyPublisher()
+            return Result.Publisher(()).eraseToAnyPublisher()
         } catch {
             print("Delete all objects error: \(error)")
-            return Fail(error: .deleteObjectFail).eraseToAnyPublisher()
+            return Fail(error: StorageException.deleteObjectFail).eraseToAnyPublisher()
         }
     }
     
-    func readFirst<T>(_ model: T.Type, predicate: NSPredicate?) -> AnyPublisher<T?, StorageException> where T: Storable {
-        guard let type = model as? NSManagedObject.Type else { return Fail(error: .objectNotSupported).eraseToAnyPublisher() }
-        guard let context = managedContext else { return Fail(error: .notInitialized).eraseToAnyPublisher() }
+    func readFirst<T>(_ model: T.Type, predicate: NSPredicate?) -> AnyPublisher<T?, Error> where T: Storable {
+        guard let type = model as? NSManagedObject.Type else { return Fail(error: StorageException.objectNotSupported).eraseToAnyPublisher() }
+        guard let context = managedContext else { return Fail(error: StorageException.notInitialized).eraseToAnyPublisher() }
         do {
             let fetchRequest = type.fetchRequest() as NSFetchRequest<NSFetchRequestResult>
             fetchRequest.predicate = predicate
             
             let result = try context.fetch(fetchRequest).first as? T
-            return Just(result).setFailureType(to: StorageException.self).eraseToAnyPublisher()
+            return Just(result).setFailureType(to: Error.self).eraseToAnyPublisher()
         } catch {
             print("Read First object error: \(error)")
-            return Fail(outputType: T?.self, failure: .readObjectFail).eraseToAnyPublisher()
+            return Fail(outputType: T?.self, failure: StorageException.readObjectFail).eraseToAnyPublisher()
         }
     }
     
-    func readAll<T>(_ model: T.Type, predicate: NSPredicate?) -> AnyPublisher<[T], StorageException> where T: Storable {
-        guard (model as? NSManagedObject.Type) != nil else { return Fail(error: .objectNotSupported).eraseToAnyPublisher() }
-        guard let context = managedContext else { return Fail(error: .notInitialized).eraseToAnyPublisher() }
+    func readAll<T>(_ model: T.Type, predicate: NSPredicate?) -> AnyPublisher<[T], Error> where T: Storable {
+        guard (model as? NSManagedObject.Type) != nil else { return Fail(error: StorageException.objectNotSupported).eraseToAnyPublisher() }
+        guard let context = managedContext else { return Fail(error: StorageException.notInitialized).eraseToAnyPublisher() }
         do {
             let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: model.entityName)
             fetchRequest.predicate = predicate
             let results = try context.fetch(fetchRequest) as? [T] ?? []
-            return Just(results).setFailureType(to: StorageException.self).eraseToAnyPublisher()
+            return Just(results).setFailureType(to: Error.self).eraseToAnyPublisher()
         } catch {
             print("Read all objects error: \(error)")
-            return Fail(outputType: [T].self, failure: .readObjectFail).eraseToAnyPublisher()
+            return Fail(outputType: [T].self, failure: StorageException.readObjectFail).eraseToAnyPublisher()
         }
     }
    

@@ -7,7 +7,7 @@ import AltairMDKCommon
 import Combine
 
 public protocol NetworkAgent: AnyObject {
-    func run<Endpoint: EndpointProvider>(_ endpoint: Endpoint) -> AnyPublisher<Endpoint.APIResponse, NetworkException>
+    func run<Endpoint: EndpointProvider>(_ endpoint: Endpoint) -> AnyPublisher<Endpoint.APIResponse, Error>
 }
 
 public enum NetworkException {

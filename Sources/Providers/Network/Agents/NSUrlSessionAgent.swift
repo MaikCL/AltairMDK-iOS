@@ -10,13 +10,13 @@ final class NSUrlSessionAgent: NetworkAgent {
     
     public init () { }
     
-    public func run<Endpoint>(_ endpoint: Endpoint) -> AnyPublisher<Endpoint.APIResponse, NetworkException> where Endpoint: EndpointProvider {
+    public func run<Endpoint>(_ endpoint: Endpoint) -> AnyPublisher<Endpoint.APIResponse, Error> where Endpoint: EndpointProvider {
         guard let url = URL(string: endpoint.path) else {
-            return AnyPublisher(Fail<Endpoint.APIResponse, NetworkException>(error: .invalidURL))
+            return AnyPublisher(Fail<Endpoint.APIResponse, Error>(error: NetworkException.invalidURL))
         }
         
         guard Reachability.isNetworkReachable() else {
-            return AnyPublisher(Fail<Endpoint.APIResponse, NetworkException>(error: .unreachable))
+            return AnyPublisher(Fail<Endpoint.APIResponse, Error>(error: NetworkException.unreachable))
         }
 
         var request = URLRequest(url: url, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
@@ -25,7 +25,7 @@ final class NSUrlSessionAgent: NetworkAgent {
 
         if endpoint.parameters != nil {
             guard let postParams = try? JSONEncoder().encode(endpoint.parameters) else {
-                return AnyPublisher(Fail<Endpoint.APIResponse, NetworkException>(error: .invalidPostParams))
+                return AnyPublisher(Fail<Endpoint.APIResponse, Error>(error: NetworkException.invalidPostParams))
             }
             request.httpBody = postParams
         }
