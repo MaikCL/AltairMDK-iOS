@@ -10,29 +10,29 @@ final class NSUrlSessionAgent: NetworkAgent {
     
     public init () { }
     
-    public func run<Endpoint>(_ endpoint: Endpoint) -> AnyPublisher<Endpoint.APIResponse, NetworkException> where Endpoint: EndpointProvider {
+    public func run<Endpoint>(_ endpoint: Endpoint) -> AnyPublisher<Endpoint.APIResponse, Error> where Endpoint: EndpointProvider {
         guard let url = URL(string: endpoint.path) else {
-            return AnyPublisher(Fail<Endpoint.APIResponse, NetworkException>(error: .invalidURL))
+            return AnyPublisher(Fail<Endpoint.APIResponse, Error>(error: NetworkException.invalidURL))
         }
         
         guard Reachability.isNetworkReachable() else {
-            return AnyPublisher(Fail<Endpoint.APIResponse, NetworkException>(error: .unreachable))
+            return AnyPublisher(Fail<Endpoint.APIResponse, Error>(error: NetworkException.unreachable))
         }
 
-        var request = URLRequest(url: url, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
+        var request = URLRequest(url: url, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 6.0)
         request.httpMethod = httpMethod(from: endpoint.method)
         request.allHTTPHeaderFields = endpoint.headers
 
         if endpoint.parameters != nil {
             guard let postParams = try? JSONEncoder().encode(endpoint.parameters) else {
-                return AnyPublisher(Fail<Endpoint.APIResponse, NetworkException>(error: .invalidPostParams))
+                return AnyPublisher(Fail<Endpoint.APIResponse, Error>(error: NetworkException.invalidPostParams))
             }
             request.httpBody = postParams
         }
         
         return URLSession.shared
             .dataTaskPublisher(for: request)
-            .retry(3)
+            .retry(1)
             .tryMap { data, response in
                 let code = (response as? HTTPURLResponse)?.statusCode ?? -1
                 let statusCode = HTTPStatusCode(rawCode: code)
