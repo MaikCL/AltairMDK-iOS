@@ -11,13 +11,13 @@ import AltairMDKCommon
 
 public protocol StorageAgent: AnyObject {
     func create<T: Storable>(_ model: T.Type) -> T?
-    func insert(object: Storable) -> AnyPublisher<Void, StorageException>
-    func insertAll(objects: [Storable]) -> AnyPublisher<Void, StorageException>
-    func update(object: Storable) -> AnyPublisher<Void, StorageException>
-    func delete(object: Storable) -> AnyPublisher<Void, StorageException>
-    func deleteAll(_ model: Storable.Type, predicate: NSPredicate?) -> AnyPublisher<Void, StorageException>
-    func readFirst<T: Storable>(_ model: T.Type, predicate: NSPredicate?) -> AnyPublisher<T?, StorageException>
-    func readAll<T: Storable>(_ model: T.Type, predicate: NSPredicate?) -> AnyPublisher<[T], StorageException>
+    func insert(object: Storable) -> Future<Void, Error>
+    func insertAll(objects: [Storable]) -> Future<Void, Error>
+    func update(object: Storable) -> Future<Void, Error>
+    func delete(object: Storable) -> Future<Void, Error>
+    func deleteAll(_ model: Storable.Type, predicate: NSPredicate?) -> Future<Void, Error>
+    func readFirst<T: Storable>(_ model: T.Type, predicate: NSPredicate?) -> Future<T?, Error>
+    func readAll<T: Storable>(_ model: T.Type, predicate: NSPredicate?) -> Future<[T], Error>
 }
 
 public enum StorageException {
@@ -52,6 +52,10 @@ extension StorageException: Exception {
             case .dbModelFileNotFound: return "mdk.stg.09"
             case .dbModelCreationFail: return "mdk.stg.10"
         }
+    }
+    
+    public var errorTitle: String? {
+        return "An exception occurred"
     }
     
     public var errorDescription: String? {
