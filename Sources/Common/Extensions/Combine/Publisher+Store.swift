@@ -1,12 +1,9 @@
-//
-//  Created by Miguel Angel on 09-02-21.
-//
-
 import Foundation
 import Combine
 
 extension Publishers {
     
+    @available(*, deprecated, message: "Use the new MVI type Store instead")
     public static func store<State, Action, Scheduler: Combine.Scheduler>(
         initial: State,
         reduce: @escaping (State, Action) -> State,
