@@ -1,10 +1,3 @@
-//
-//  Publisher+NoRetain.swift
-//  
-//
-//  Created by Miguel Angel on 10-05-21.
-//
-
 import Combine
 
 extension Publisher where Self.Failure == Never {

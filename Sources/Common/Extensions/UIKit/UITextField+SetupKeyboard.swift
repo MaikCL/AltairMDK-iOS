@@ -1,10 +1,3 @@
-//
-//  UITextField+SetupKeyboard.swift
-//  
-//
-//  Created by Miguel Angel on 09-08-21.
-//
-
 import UIKit
 
 public enum KeyboardType {

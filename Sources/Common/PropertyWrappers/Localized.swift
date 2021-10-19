@@ -1,10 +1,3 @@
-//
-//  Localized.swift
-//  
-//
-//  Created by Miguel Angel on 03-08-21.
-//
-
 import Foundation
 
 @propertyWrapper
