@@ -8,7 +8,7 @@ extension Publishers {
         initial: State,
         reduce: @escaping (State, Action) -> State,
         scheduler: Scheduler,
-        sideEffects: [SideEffect<State, Action>]
+        sideEffects: [SideEffectLegacy<State, Action>]
     ) -> AnyPublisher<State, Never> {
         
         let state = CurrentValueSubject<State, Never>(initial)
