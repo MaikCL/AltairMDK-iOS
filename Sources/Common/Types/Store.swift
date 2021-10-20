@@ -6,7 +6,7 @@ public typealias Reducer<State, Action> = (inout State, Action) -> Void
 public typealias SideEffect<State, Action> = (State, Action) -> AnyPublisher<Action, Never>?
 
 public final class Store<State, Action>: ObservableObject {
-    @Published private(set) var state: State
+    @Published public private(set) var state: State
 
     private let reducer: Reducer<State, Action>
     private let sideEffects: [SideEffect<State, Action>]
