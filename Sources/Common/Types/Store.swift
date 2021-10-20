@@ -12,13 +12,13 @@ public final class Store<State, Action>: ObservableObject {
     private let sideEffects: [SideEffect<State, Action>]
     private var cancellables = Set<AnyCancellable>()
     
-    init(state: State, reducer: @escaping Reducer<State, Action>, sideEffects: [SideEffect<State, Action>] = []) {
+    public init(state: State, reducer: @escaping Reducer<State, Action>, sideEffects: [SideEffect<State, Action>] = []) {
         self.state = state
         self.reducer = reducer
         self.sideEffects = sideEffects
     }
     
-    func trigger(_ action: Action) {
+    public func trigger(_ action: Action) {
         //TODO: Improve with logger provider (or LoggerSideEffect)
         print("Executing Store with <\(genericTypeName)>")
         print("Action Triggered: \(action)")
