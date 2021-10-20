@@ -1,7 +1,3 @@
-//
-//  Created by Miguel Angel on 31-03-21.
-//
-
 import Combine
 
 @available(*, deprecated, message: "Use the new MVI arqueo-type")
