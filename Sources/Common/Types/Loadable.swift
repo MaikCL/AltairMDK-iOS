@@ -1,7 +1,3 @@
-//
-//  Created by Miguel Angel on 20-07-20.
-//
-
 public enum Loadable<T> {
     case neverLoaded
     case loading

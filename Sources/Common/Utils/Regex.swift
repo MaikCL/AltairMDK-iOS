@@ -1,10 +1,3 @@
-//
-//  RegexMatch.swift
-//  
-//
-//  Created by Miguel Angel on 19-05-21.
-//
-
 import Foundation
 
 public final class Regex {

@@ -1,10 +1,3 @@
-//
-//  Toggleable.swift
-//  
-//
-//  Created by Miguel Angel on 12-05-21.
-//
-
 public enum Toggleable: Equatable {
     case on
     case off

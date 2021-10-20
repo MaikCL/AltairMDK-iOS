@@ -1,10 +1,3 @@
-//
-//  SearchBar+Enabled.swift
-//  
-//
-//  Created by Miguel Angel on 13-08-21.
-//
-
 import UIKit
 
 extension UISearchBar {

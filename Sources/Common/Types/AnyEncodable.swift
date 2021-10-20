@@ -1,7 +1,3 @@
-//
-//  Created by Miguel Angel on 06-07-20.
-//
-
 import Foundation
 
 /**

@@ -1,7 +1,3 @@
-//
-//  Created by Miguel Angel on 13-04-21.
-//
-
 import Foundation
 import Combine
 
