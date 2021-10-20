@@ -11,13 +11,13 @@ import AltairMDKCommon
 
 public protocol StorageAgent: AnyObject {
     func create<T: Storable>(_ model: T.Type) -> T?
-    func insert(object: Storable) -> Future<Void, Error>
-    func insertAll(objects: [Storable]) -> Future<Void, Error>
-    func update(object: Storable) -> Future<Void, Error>
-    func delete(object: Storable) -> Future<Void, Error>
-    func deleteAll(_ model: Storable.Type, predicate: NSPredicate?) -> Future<Void, Error>
-    func readFirst<T: Storable>(_ model: T.Type, predicate: NSPredicate?) -> Future<T?, Error>
-    func readAll<T: Storable>(_ model: T.Type, predicate: NSPredicate?) -> Future<[T], Error>
+    func insert(object: Storable) -> AnyPublisher<Void, Error>
+    func insertAll(objects: [Storable]) -> AnyPublisher<Void, Error>
+    func update(object: Storable) -> AnyPublisher<Void, Error>
+    func delete(object: Storable) -> AnyPublisher<Void, Error>
+    func deleteAll(_ model: Storable.Type, predicate: NSPredicate?) -> AnyPublisher<Void, Error>
+    func readFirst<T: Storable>(_ model: T.Type, predicate: NSPredicate?) -> AnyPublisher<T?, Error>
+    func readAll<T: Storable>(_ model: T.Type, predicate: NSPredicate?) -> AnyPublisher<[T], Error>
 }
 
 public enum StorageException {
